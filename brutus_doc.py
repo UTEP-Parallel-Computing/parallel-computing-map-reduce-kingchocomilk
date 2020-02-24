@@ -25,7 +25,7 @@ if (args.power < 1 or args.power > 4):
 filenames = []
 all_lines = []
 
-#set all the file names. Conveniently they're all named similarly. 
+#set all the file names. Conveniently they're all named similarly.
 for x in range(1,9):
     filenames.append('shakespeare' + x + '.txt.')
 
