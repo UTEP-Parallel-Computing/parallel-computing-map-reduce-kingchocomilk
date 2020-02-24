@@ -10,11 +10,12 @@ of cores.
 
 import pymp
 import argparse
+import re
 
 #Quick setup for argparse
 parser = argparse.ArgumentParser(description=
                                  'Counts all selected words in Shakespeare.')
-parse.add_arguement('-p', '--power', default=1, type=int,
+parser.add_argument('-p', '--power', default=1, type=int,
                     help='Number of cores utilized')
 args = parser.parse_args()
 
@@ -24,10 +25,11 @@ if (args.power < 1 or args.power > 4):
 #Variable setup
 filenames = []
 all_lines = []
+word_counter_collection = []
 
 #set all the file names. Conveniently they're all named similarly.
 for x in range(1,9):
-    filenames.append('shakespeare' + x + '.txt.')
+    filenames.append('shakespeare' + str(x) + '.txt')
 
 # Puts all lines in one large array of string lines.
 for filename in filenames:
@@ -38,20 +40,34 @@ special_words = ['hate', 'love', 'eath', 'night', 'sleep', 'sleep', 'time',
                  'henry', 'hamlet', 'you', 'hamlet', 'you', 'my', 'blood',
                  'poison', 'macbeth', 'king', 'heart', 'honest']
         
-def index(n):
-    return all_lines[n]
-
-class ShakespeareReader:
-
+for i in range(args.power + 1):
     word_counter = {}
+    for word in special_words:
+        word_counter[word] = 0
+    word_counter_collection.append(word_counter)
 
-    def __init__(self):
-        for word in special_words:
-            word_counter[word] = 0
+with pymp.Parallel(args.power) as p:
+    partition_size = int(len(all_lines) / args.power)
+    for i in p.range(args.power):
+        end = len(all_lines) - 1
+        if (i != (args.power-1)):
+            end = (i+1) * partition_size
+        for j in range((i * partition_size), end):
+            #print(all_lines[j])
+            all_lines[j] = re.split(' |\"\'.,\(\)\[]\{}!?&%$#=_\n\t\r\\/~<>', all_lines[j])
+            for word in all_lines[j]:
+                try:
+                    word_counter_collection[i][word] += 1
+                except KeyError:
+                    print("")
 
-    def read_word(self, considered_word):
-        try:
-            word_counter[considered_word]
+
+for counter in word_counter_collection:
+    for key in counter:
+        word_counter_collection[args.power+1][key] += counter[key]
+
+            
+        
             
 
     
