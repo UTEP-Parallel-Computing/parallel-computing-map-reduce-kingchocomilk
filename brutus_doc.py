@@ -36,7 +36,8 @@ for filename in filenames:
     with open(filename) as f:
         all_lines.append(f.readlines())
 
-special_words = ['hate', 'love', 'eath', 'night', 'sleep', 'sleep', 'time',
+
+special_words = ['hate', 'love', 'death', 'night', 'sleep', 'sleep', 'time',
                  'henry', 'hamlet', 'you', 'hamlet', 'you', 'my', 'blood',
                  'poison', 'macbeth', 'king', 'heart', 'honest']
         
@@ -53,18 +54,20 @@ with pymp.Parallel(args.power) as p:
         if (i != (args.power-1)):
             end = (i+1) * partition_size
         for j in range((i * partition_size), end):
-            #print(all_lines[j])
-            all_lines[j] = re.split(' |\"\'.,\(\)\[]\{}!?&%$#=_\n\t\r\\/~<>', all_lines[j])
+            array_string = ''.join(all_lines[j]).lower()
+            all_lines[j] = re.split(' |\"\'.,\(\)\[]{}!?&%$#=_\n\t\r\\/~<>', array_string)
             for word in all_lines[j]:
                 try:
                     word_counter_collection[i][word] += 1
                 except KeyError:
-                    print("")
+                    pass
 
 
 for counter in word_counter_collection:
     for key in counter:
-        word_counter_collection[args.power+1][key] += counter[key]
+        word_counter_collection[args.power][key] += counter[key]
+
+print(word_counter_collection[args.power])
 
             
         
